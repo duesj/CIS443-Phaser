@@ -1,0 +1,40 @@
+body {
+  background-color: rgb(77, 75, 75);
+}
+
+@media (min-width: 992px) {
+
+}
+
+canvas {
+    float: right;
+    margin-right: 1%;
+    margin-top: 1%;
+    margin-bottom: 2%;
+    padding:2%;
+}
+
+h2, p {
+    color:white;
+}
+
+.table {
+    color: white;
+    background: black;
+}
+
+.leaderboardContainer {
+    float:left;
+    width: 30%;
+    padding-left:3%;
+}
+
+#sign-out {
+    margin-top: 10%;
+}
+
+#userName {
+    color:white;
+    padding-right: 30px;
+    font-size: 1.2em;
+}
