@@ -4,7 +4,7 @@ var global_score;
  initApp = function () {
             document.getElementById('sign-out').addEventListener('click', function () {
                 firebase.auth().signOut();
-                window.location.href = "login.html";
+                window.location.href = "index.html";
             });
             firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
@@ -18,11 +18,7 @@ var global_score;
                     var phoneNumber = user.phoneNumber;
                     var providerData = user.providerData;
                     var dbRef = firebase.database().ref('/users/' + user.uid + '/');
-                    var startScore = 0;
-                    dbRef.update({
-                        username: displayName,
-                        score: startScore,
-                    });
+                    
                     document.getElementById("userName").innerHTML = 'Hello ' + displayName;
 
                      dbRef.on("value", function (snapshot) {
