@@ -401,6 +401,7 @@ function resetBullet (bullet) {
 //Restart function for losing all lives
 function failRestart () {
 
+    highScore = score;
     //  A new level starts
     resetStats();
     //resets the life count
