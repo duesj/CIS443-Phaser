@@ -42,7 +42,10 @@ var difficulty = 0;
 var level = 1;
 var levelString = '';
 var levelText;
+
 var scoreGoal = 5000;
+var scoreGoalString = '';
+var scoreGoalText;
 	
 //Audio
 var laser;
@@ -50,6 +53,9 @@ var boom;
 var winSound;
 var gameOver;
 var theMusic;
+
+var alienXNum = 8;
+var alienYNum = 2;
 
 function create() {
 
@@ -94,9 +100,13 @@ function create() {
     scoreString = 'Score : ';
     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
 
+    // Score Goal
+    scoreGoalString = 'Goal :   ';
+    scoreGoalText = game.add.text(10, 60, scoreGoalString + scoreGoal, {font: '34px Arial', fill: '#fff' });
+
     // The level
     levelString = 'Level : ';
-    levelText = game.add.text(10,60, levelString + level, {font: '34px Arial', fill: '#fff' })
+    levelText = game.add.text(10,110, levelString + level, {font: '34px Arial', fill: '#fff' })
 
     //  Lives
     lives = game.add.group();
@@ -128,8 +138,12 @@ function create() {
     explosions.forEach(setupInvader, this);
 
     //  And some controls to play the game with
-    cursors = game.input.keyboard.createCursorKeys();
+    
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    upButton = game.input.keyboard.addKey(Phaser.Keyboard.W);
+    downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
 	
 	
 
@@ -141,9 +155,9 @@ function create() {
 
 function createAliens () {
 
-    for (var y = 0; y < 4; y++)
+    for (var y = 0; y < alienYNum; y++)
     {
-        for (var x = 0; x < 10; x++)
+        for (var x = 0; x < alienXNum; x++)
         {
             var alien = aliens.create(x * 48, y * 50, 'invader');
             alien.anchor.setTo(0.5, 0.5);
@@ -173,7 +187,12 @@ function setupInvader (invader) {
 
 function descend() {
 
-    aliens.y += 10;
+    //prevents the aliens from going too low or off screen.
+    if (aliens.y <= 300)
+    {
+        aliens.y += 10;
+    }
+    
 
 }
 
@@ -187,14 +206,26 @@ function update() {
         //  Reset the player, then check for movement keys
         player.body.velocity.setTo(0, 0);
 
-        if (cursors.left.isDown)
+        if (leftButton.isDown && player.x > 15)
         {
             player.body.velocity.x = -200;
         }
-        else if (cursors.right.isDown)
+        else if (rightButton.isDown && player.x < 785)
         {
             player.body.velocity.x = 200;
         }
+        else if (upButton.isDown && player.y > 450) 
+        {
+            player.body.velocity.y = -200;
+        }
+        else if (downButton.isDown && player.y < 550)
+        {
+            player.body.velocity.y = 200;
+        }
+
+
+        
+        
 
         //  Firing?
         if (fireButton.isDown)
@@ -242,6 +273,7 @@ function collisionHandler (bullet, alien) {
     {
         lives.callAll('revive');
         scoreGoal += 5000;
+        scoreGoalText.text = scoreGoalString + scoreGoal;
     }
 
     //  And create an explosion :)
@@ -257,6 +289,7 @@ function collisionHandler (bullet, alien) {
         {
         lives.callAll('revive');
         scoreGoal += 5000;
+        scoreGoalText.text = scoreGoalString + scoreGoal;
         }
 
         enemyBullets.callAll('kill',this);
@@ -367,7 +400,7 @@ function resetBullet (bullet) {
 
 //Restart function for losing all lives
 function failRestart () {
-    highScore = score;
+
     //  A new level starts
     resetStats();
     //resets the life count
@@ -395,12 +428,28 @@ function winRestart() {
     levelText.text = levelString + level;
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
+    //Makes the game more difficult by adding more enemies
+    moreAliens();
+
     createAliens();
 
     //revives the player
     player.revive();
     //hides the text
     stateText.visible = false;
+}
+
+//increases the number of aliens as you win
+function moreAliens() {
+    if (alienXNum <= 11)
+    {
+        alienXNum += 1;
+    }
+
+    if (alienYNum <= 4 && level > 2)
+    {
+        alienYNum += 1;
+    }
 }
 
 
@@ -410,7 +459,10 @@ function resetStats (){
     score = 0;
     difficulty = 0;
     scoreGoal = 5000;
+    alienXNum = 8;
+    alienYNum = 2;
     scoreText.text = scoreString + score;
     levelText.text = levelString + level;
+    scoreGoalText.text = scoreGoalString + scoreGoal;
 
 }
