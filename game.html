@@ -25,6 +25,13 @@ function preload() {
     game.load.spritesheet('kaboom', 'assets/invaders/explode.png', 128, 128);
     game.load.image('starfield', 'assets/invaders/starfield.png');
     game.load.image('background', 'assets/background2.png');
+	
+    game.load.audio('laser', 'assets/sounds/laser.ogg');
+    game.load.audio('boom', 'assets/sounds/explosion.ogg');
+    game.load.audio('winSound', 'assets/sounds/winSound.ogg');
+    game.load.audio('gameOver', 'assets/sounds/gameOver.ogg');
+    game.load.audio('theMusic', 'assets/sounds/theMusic.ogg');
+
 
 }
 
@@ -52,6 +59,13 @@ var level = 1;
 var levelString = '';
 var levelText;
 var scoreGoal = 5000;
+	
+//Audio
+var laser;
+var boom;
+var winSound;
+var gameOver;
+var theMusic;
 
 function create() {
 
@@ -127,6 +141,13 @@ function create() {
     //  And some controls to play the game with
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+	
+	//Audio
+    laser = game.add.audio('laser');
+    boom = game.add.audio('boom');
+    winSound = game.add.audio('winSound');
+    gameOver = game.add.audio('gameOver');
+    theMusic = game.add.audio('theMusic');
 
     
 
@@ -223,6 +244,8 @@ function collisionHandler (bullet, alien) {
     //  When a bullet hits an alien we kill them both
     bullet.kill();
     alien.kill();
+	//play explosion audio
+    boom.play();
 
     //  Increase the score
     score += 20;
@@ -253,6 +276,7 @@ function collisionHandler (bullet, alien) {
         enemyBullets.callAll('kill',this);
         stateText.text = " You Won! \n Click to Continue";
         stateText.visible = true;
+	winSound.play();
 
         
 
@@ -284,6 +308,7 @@ function enemyHitsPlayer (player,bullet) {
     {
         player.kill();
         enemyBullets.callAll('kill');
+	gameOver.play();
 
         stateText.text=" GAME OVER \n Click to restart";
         stateText.visible = true;
