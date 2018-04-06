@@ -157,7 +157,6 @@ function descend() {
 }
 
 function update() {
-    //playerScore=score;
     //  Scroll the background
     starfield.tilePosition.y += 2;
 
@@ -338,7 +337,7 @@ function resetBullet (bullet) {
 
 //Restart function for losing all lives
 function failRestart () {
-
+    highScore = score;
     //  A new level starts
     resetStats();
     //resets the life count
@@ -378,14 +377,7 @@ function winRestart() {
 //resets values to default
 function resetStats (){
     level = 1;
-    if (score > playerScore) {
-        playerScore = score;
-        score = 0;
-    }
-    else {
-        playerScore = playerScore;
-        score = 0;
-    }
+    score = 0;
     difficulty = 0;
     scoreGoal = 5000;
     scoreText.text = scoreString + score;
