@@ -9,6 +9,8 @@ function preload() {
     game.load.spritesheet('kaboom', 'assets/invaders/explode.png', 128, 128);
     game.load.image('starfield', 'assets/invaders/starfield.png');
     game.load.image('background', 'assets/background2.png');
+
+    game.load.spritesheet('boss', 'assets/invaders/boss60x60x4.png', 60, 60);
 	
     game.load.audio('laser', 'assets/sounds/laser.ogg');
     game.load.audio('boom', 'assets/sounds/explosion.ogg');
@@ -23,6 +25,7 @@ var player;
 var aliens;
 var bullets;
 var bulletTime = 0;
+var bulletTimeBoost = 0;
 var cursors;
 var fireButton;
 var explosions;
@@ -38,7 +41,10 @@ var firingTimer = 0;
 var stateText;
 var livingEnemies = [];
 
+var bossHealth = 0;
+
 var difficulty = 0;
+var bossDifficulty = 0;
 var level = 1;
 var levelString = '';
 var levelText;
@@ -94,6 +100,7 @@ function create() {
     aliens.enableBody = true;
     aliens.physicsBodyType = Phaser.Physics.ARCADE;
 
+
     createAliens();
 
     //  The score
@@ -144,17 +151,37 @@ function create() {
     downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
-	
-	
-
-    
-
-    
+	    
 }
-
 
 function createAliens () {
 
+    if(level % 6 == 0){
+        bossHealth = 10 + ((level * level) / 2);
+        bossDifficulty = 500
+        //main boss enemy
+        var alien = aliens.create(250, 50, 'boss');
+        alien.scale.setTo(1.75, 1.75);
+        alien.anchor.setTo(0.5, 0.5);
+        alien.animations.add('jets', [ 0, 1, 2, 3 ], 20, true);
+        alien.play('jets');
+        alien.body.moves = false;
+        //two side enemies to shoot at you
+        var shooterLeft = aliens.create(100, 70, 'invader');
+        shooterLeft.anchor.setTo(0.5, 0.5);
+        shooterLeft.animations.add('fly', [ 0, 1, 2, 3 ], 20, true);
+        shooterLeft.play('fly');
+        shooterLeft.tint = 0xff0000;
+        shooterLeft.body.moves = false;
+        var shooterRight = aliens.create(400, 70, 'invader');
+        shooterRight.anchor.setTo(0.5, 0.5);
+        shooterRight.animations.add('fly', [ 0, 1, 2, 3 ], 20, true);
+        shooterRight.play('fly');
+        shooterRight.tint = 0xff0000;
+        shooterRight.body.moves = false;
+
+
+    }else{
     for (var y = 0; y < alienYNum; y++)
     {
         for (var x = 0; x < alienXNum; x++)
@@ -166,6 +193,7 @@ function createAliens () {
             alien.body.moves = false;
         }
     }
+    }
 
     aliens.x = 100;
     aliens.y = 50;
@@ -176,6 +204,7 @@ function createAliens () {
     //  When the tween loops it calls descend
     tween.onLoop.add(descend, this);
 }
+
 
 function setupInvader (invader) {
 
@@ -192,8 +221,6 @@ function descend() {
     {
         aliens.y += 10;
     }
-    
-
 }
 
 function update() {
@@ -259,7 +286,16 @@ function collisionHandler (bullet, alien) {
 
     //  When a bullet hits an alien we kill them both
     bullet.kill();
-    alien.kill();
+    if(level % 6 == 0){
+        bossHealth -= 1;
+        boom.play();
+        if(bossHealth <= 0){
+            alien.kill();
+            bossDifficulty = 0;
+        }
+    }else{
+        alien.kill();
+    }
 	//play explosion audio
     boom.play();
 
@@ -365,7 +401,7 @@ function enemyFires () {
         game.physics.arcade.moveToObject(enemyBullet,player,120);
 
         //As difficulty increases, firing rate increases until difficulty = 2000
-        firingTimer = game.time.now + 2000 - difficulty;
+        firingTimer = game.time.now + 2000 - difficulty - bossDifficulty;
     }
 
 }
@@ -385,7 +421,8 @@ function fireBullet () {
 
             bullet.reset(player.x, player.y + 8);
             bullet.body.velocity.y = -400;
-            bulletTime = game.time.now + 200;
+
+            bulletTime = game.time.now + 220 - bulletTimeBoost;
         }
     }
 
@@ -422,16 +459,19 @@ function winRestart() {
     //  A new level starts
     level += 1;
     //prevents needless action.
-    if(difficulty < 2000)
+    if(difficulty <= 1750)
     {
-        difficulty += 500; 
+        difficulty += 250; 
+    }
+    bulletTimeBoost += 7;
+    if(bulletTimeBoost >= 200){
+        bulletTimeBoost = 180;
     }
     levelText.text = levelString + level;
     //  And brings the aliens back from the dead :)
     aliens.removeAll();
     //Makes the game more difficult by adding more enemies
     moreAliens();
-
     createAliens();
 
     //revives the player
@@ -462,6 +502,7 @@ function resetStats (){
     scoreGoal = 5000;
     alienXNum = 8;
     alienYNum = 2;
+    bulletTimeBoost = 0;
     scoreText.text = scoreString + score;
     levelText.text = levelString + level;
     scoreGoalText.text = scoreGoalString + scoreGoal;
