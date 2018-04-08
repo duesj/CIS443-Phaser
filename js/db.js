@@ -54,7 +54,7 @@ initApp = function () {
 
                 //Updates leaderboards
                 function updateHighScore() {
-                    var i = 10;
+                    var i = 5;
                     var ref = firebase
                         .database()
                         .ref("users/");
