@@ -49,7 +49,6 @@ initApp = function () {
             //Updates score to firebase
             function updateScore(score, userId) {
                 dbRef.update({username: user.displayName, score: currentScore});
-                console.log(currentScore);
             }
 
             //Updates leaderboards
@@ -59,7 +58,6 @@ initApp = function () {
                 ref.orderByChild("score").limitToLast(10).on("child_added", function (snapshot) {
                         var scores = snapshot.val().score + " " + snapshot.val().username;
                         var entry = document.getElementById("s" + i);
-                        console.log(scores)
                         entry.innerHTML = scores;
                         i--;
                     });
