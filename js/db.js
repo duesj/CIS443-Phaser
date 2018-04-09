@@ -57,7 +57,7 @@ initApp = function () {
                 var i = 5;
                 var ref = firebase.database().ref("users/");
                 ref.orderByChild("score").limitToLast(10).on("child_added", function (snapshot) {
-                        var scores = snapshot.val().score + " " + snapshot.val().username;
+                        var scores = snapshot.val().username + " - " + snapshot.val().score;
                         var entry = document.getElementById("s" + i);
                         console.log(scores)
                         entry.innerHTML = scores;
